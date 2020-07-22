@@ -1,4 +1,5 @@
 import pygame
+import datetime
 import time
 
 #Variables
@@ -6,11 +7,10 @@ HEIGHT = 600
 WIDTH = 1200
 BORDER = 20
 VELOCITY = 1
-FRAMERATE = 100000
+FRAMERATE = 1
 
 class Ball:
     RADIUS = 20
-
     def __init__(self, screen, x, y, vx, vy):
         self.screen = screen
         self.x = x
@@ -53,12 +53,12 @@ class Paddle:
         self.y = pygame.mouse.get_pos()[1]
         self.show(fgColor)
 
-
 def main():
     print('Inside Main.')
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    fgColor = pygame.Color('white')
+    pygame.display.set_caption('PingPong')
+    fgColor = pygame.Color('green')
     bgColor = pygame.Color('black')
     pygame.draw.rect(screen, fgColor, pygame.Rect((0, 0), (WIDTH - Paddle.WIDTH, BORDER)))
     pygame.draw.rect(screen, fgColor , pygame.Rect((0, 0), (BORDER, HEIGHT)))
@@ -70,14 +70,28 @@ def main():
     paddle.show(fgColor)
 
     clock = pygame.time.Clock()
+    game_ended = False
+    start_time = datetime.datetime.now().replace(microsecond=0)
     while True:
         e = pygame.event.poll()
         if e.type == pygame.QUIT:
            break
         clock.tick(FRAMERATE)
         pygame.display.flip()
+        if game_ended:
+            continue
         ballPLay.update(bgColor, fgColor, paddle)
         paddle.update(bgColor, fgColor)
+        if ballPLay.x > WIDTH:
+            end_time = datetime.datetime.now().replace(microsecond=0)
+            play_time = end_time - start_time
+            play_time_str = datetime.time(0, 0, play_time.seconds).strftime("%M:%S")
+            game_ended = True
+            font = pygame.font.Font('freesansbold.ttf', 32)
+            text = font.render('Game Ended ' + play_time_str, True, fgColor, bgColor)
+            textRect = text.get_rect()
+            textRect.center = (WIDTH // 2, HEIGHT // 2)
+            screen.blit(text, textRect)
 
     pygame.quit()
 
